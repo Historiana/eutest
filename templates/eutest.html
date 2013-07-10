@@ -1,0 +1,198 @@
+<html>
+<head>
+	<link rel="stylesheet" href="/assets/awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/assets/hint.min.css"></link>
+	<link rel="stylesheet" href="/assets/js/fancybox2/jquery.fancybox.css?v=2.1.4" type="text/css" media="screen" />
+	<link href='http://fonts.googleapis.com/css?family=Archivo+Narrow' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+	<script type="text/javascript" src="/assets/js/fancybox2/jquery.fancybox.pack.js?v=2.1.4"></script>
+	<style>
+
+	body {
+		font-family: 'Ubuntu', sans-serif;
+	}
+
+	th
+	{
+		font-family: 'Archivo Narrow', sans-serif;
+		color: red;
+		font-weight: normal;
+		text-align: right;
+		vertical-align: top;
+	}
+
+	td
+	{
+		vertical-align: top;		
+	}
+
+	.itemimage
+	{
+		max-width: 340px;
+		max-height: 400px;
+	}
+
+	h4
+	{
+		background-color: #707;
+		color: #eee;
+		padding: 0.2em;
+		margin: 0 0 10 0;
+    	-webkit-border-radius: 	10 10 0 0;
+		-moz-border-radius:		10 10 0 0;
+    	-khtml-border-radius: 	10 10 0 0;
+
+	}
+
+	.item
+	{
+		width: 360px;
+		height: 300px;
+		float: left;
+		overflow: hidden;
+	}
+
+	.rightcorner
+	{
+		float:right;
+	}
+
+	.iteminfo
+	{
+		width: 360px;
+		position: absolute;
+		bottom: 0;
+		border:0;	
+	}
+
+	.itemwrapper
+	{
+		position: relative;
+		float: left;
+		border: 2px solid grey;
+		margin: 0.4em;
+		padding: 0.2em;
+		height: 420px;
+		filter:alpha(opacity=80); /* For IE8 and earlier */
+      	-moz-border-radius: 10px;
+    	-webkit-border-radius: 10px;
+    	-khtml-border-radius: 10px;	
+    	box-shadow: 5px 5px 5px rgba(0,0,0, 0.3);
+	}
+
+	.itemwrapper:nth-child(odd)
+	{
+		background-color: #ccc;
+	}
+
+	.itemwrapper:nth-child(even)
+	{
+		background-color: #eee;
+	}
+
+	.itemimage
+	{
+		border:	0;
+	}
+
+	#container
+	{
+		width: 96%;
+		padding-left: auto;
+		padding-right: auto;
+		margin: 0 auto; 
+	}
+
+	#header
+	{
+		border:0;
+	}
+
+	</style>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+	        $(".fancybox").fancybox({
+	                maxWidth        : '80%',
+	                maxHeight       : '60%',
+	                fitToView       : true,
+	                width           : '100%',
+	                height          : '100%',
+	                autoSize        : false,
+	                closeClick      : false,
+	                openEffect      : 'fade',
+	                closeEffect     : 'none',
+	                scrolling       : 'yes',
+	        });
+
+	        $(".items").fancybox({
+	        	type		: 'iframe',
+	        	maxWidth 	: '100%',
+	        	height 		: '100%'
+	        });
+
+        });
+        </script>
+
+</head>
+<body>
+<div id="container">
+	<div id="header">
+	<table width="100%">
+	<tr><td align="left"><img src="http://www.europeana.eu/portal/sp/img/europeana-logo-en.png"/></td>
+	<td align="center" valign="middle"><br/><h1>Europeana Integration Tools</h1></td>
+	<td align="right"><img src="http://historiana.eu/assets/images/H_getinvolved.png"/></td></tr>
+	</table>
+	</div>
+	<div id="searchbox" style="text-align:center; padding-top:2em">
+		<form method="post">
+			<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+			<input type="text" value="{{query}}" name="query" size="40">
+			<input class="btn" type="submit" name="action" value="go">
+		</form>
+	</div>
+
+	{% if request.method=='POST' and not items %}
+	<p>nothing found for <strong>{{query}}</strong></p>
+	{% endif %}
+
+	{% if found %}
+	<table>
+		<tr><th>Wikipedia translations</th><td>{% if translations %}{{"&nbsp;&bull;&nbsp;".join(translations)|safe}}{%else%}none found{%endif%}</td></tr>
+		<tr><th>Europeana Query</th><td>{{data.description}}</td></tr>
+		<tr><th>Results</th><td>{{data.totalResults}}</td></tr>
+	</table>
+	{% endif %}
+
+	{% for i in items %}
+		<div class="itemwrapper">
+			<div class="item">
+				<h4>{{i.title}}</h4>
+				<center><a href="{{i.enclosure}}" rel="page" class="items"><img class="itemimage" src="{{i.enclosure}}" /></a></center>
+				<br clear="all">
+			</div>
+			<div class="iteminfo">
+				<table>
+					<tr><th>Description</th><td>{{i.description}}</td></tr>
+					<tr><th>Provider</th><td>{{i.europeana_dataProvider}}</td></tr>
+					<tr><th></th><td align="right">
+						<a href="#" onclick="alert('To be developed');" class="icon-cloud-download icon-2x"></a>
+						<a href="#details_{{i.id()}}" class="fancybox icon-info-sign icon-2x"></a>&nbsp;&nbsp;
+					</td></tr>
+				</table>
+			</div>
+			<div style="display: none;" class="itemdetails" id="details_{{i.id()}}"> 
+				<table>
+				<tr><th>Title</th><td>{{i.title}}</td></tr>
+				{% for e in i.keys() %}
+				<tr><th>{{e}}</th><td>{{i[e]}}</td></tr>
+				{% endfor %}
+				</table>
+			</div>
+		</div>
+	{% endfor %}
+	<br clear="all">
+</div>
+</body>
+</html>
